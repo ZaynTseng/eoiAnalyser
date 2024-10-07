@@ -16,7 +16,7 @@
 
 1. 克隆此仓库：
    ```
-   git clone https://github.com/ZaynTseng/eoi-analysis-app.git
+   git clone https://github.com/ZaynTseng/eoiAnalyser.git
    cd eoi-analysis-app
    ```
 
