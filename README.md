@@ -17,7 +17,7 @@
 1. 克隆此仓库：
    ```
    git clone https://github.com/ZaynTseng/eoiAnalyser.git
-   cd eoi-analysis-app
+   cd eoiAnalyser
    ```
 
 2. 创建并激活虚拟环境（推荐）：
