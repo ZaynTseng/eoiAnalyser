@@ -52,7 +52,7 @@ def main():
     st.sidebar.title("EOI Analysis App")
 
     # Add visa type selection
-    visa_type = st.sidebar.radio("Select Visa Type", ["189 Visa", "190 Visa"])
+    visa_type = st.sidebar.radio("Select Visa Type", ["189 Visa", "190 Visa"], horizontal=True)
     visa_type = visa_type.split()[0]  # Get just the number
 
     # Add state selection for 190 visa
@@ -62,7 +62,7 @@ def main():
         if not states:
             st.warning("No state data found for 190 visa.")
             return
-        selected_state = st.sidebar.radio("Select State", states)
+        selected_state = st.sidebar.radio("Select State", states, horizontal=True)
 
     # Initialize session state
     if "data" not in st.session_state:
