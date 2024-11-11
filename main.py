@@ -3,6 +3,21 @@ import pandas as pd
 import plotly.graph_objects as go
 import os
 from dateutil.relativedelta import relativedelta
+import time
+
+
+def show_temporary_message(container, message, type="success", duration=0.5):
+    """Show a temporary message that disappears after specified duration."""
+    if type == "success":
+        container.success(message)
+    elif type == "warning":
+        container.warning(message)
+    elif type == "error":
+        container.error(message)
+
+    # Clear the message after duration
+    time.sleep(duration)
+    container.empty()
 
 
 def get_state_folders(visa_type):
@@ -118,6 +133,9 @@ def main():
     st.set_page_config(layout="wide")
     st.sidebar.title("EOI Analysis App")
 
+    # 创建一个空容器用于显示临时消息
+    message_container = st.sidebar.empty()
+
     # Add visa type selection
     visa_type = st.sidebar.radio(
         "Select Visa Type", ["189 Visa", "190 Visa"], horizontal=True
@@ -129,7 +147,9 @@ def main():
     if visa_type == "190":
         states = get_state_folders(visa_type)
         if not states:
-            st.warning("No state data found for 190 visa.")
+            show_temporary_message(
+                message_container, "No state data found for 190 visa.", "warning"
+            )
             return
         selected_state = st.sidebar.radio("Select State", states, horizontal=True)
 
@@ -157,11 +177,13 @@ def main():
     if st.session_state["data"] is None:
         st.session_state["data"] = load_data(visa_type, selected_state)
         if st.session_state["data"].empty:
-            st.warning(
-                f"No CSV files found for the selected {'state' if visa_type == '190' else 'visa type'}."
+            show_temporary_message(
+                message_container,
+                f"No CSV files found for the selected {'state' if visa_type == '190' else 'visa type'}.",
+                "warning",
             )
             return
-        st.sidebar.success("Data loaded successfully!")
+        show_temporary_message(message_container, "Data loaded successfully!")
 
     data = st.session_state["data"]
 
@@ -194,7 +216,9 @@ def main():
 
     # Ensure at least one month is selected
     if not selected_months:
-        st.warning("Please select at least one month.")
+        show_temporary_message(
+            message_container, "Please select at least one month.", "warning"
+        )
         return
 
     filtered_data = data[
