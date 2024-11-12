@@ -280,7 +280,7 @@ class EOIAnalysisApp:
                     f"No CSV files found for the selected {'state' if self.visa_type == '190' else 'visa type'}."
                 )
                 return False
-            st.sidebar.success("Data loaded successfully!")
+            # st.sidebar.success("Data loaded successfully!")
 
         return True
 
