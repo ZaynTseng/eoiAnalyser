@@ -1,9 +1,10 @@
-import streamlit as st
+import os
+from dataclasses import dataclass
+from typing import List, Optional, Dict
+
 import pandas as pd
 import plotly.graph_objects as go
-import os
-from typing import List, Optional, Dict
-from dataclasses import dataclass
+import streamlit as st
 
 
 @dataclass
@@ -12,6 +13,13 @@ class VisaConfig:
 
     VISA_TYPES = ["189 Visa", "190 Visa"]
     BASE_DIR = os.path.join(os.getcwd(), "data")
+    DATE_RANGES = {
+        "all": "All Months",
+        "3m": "Last 3 Months",
+        "6m": "Last 6 Months",
+        "12m": "Last 12 Months",
+        "custom": "Custom Selection",
+    }
 
 
 class DataLoader:
@@ -74,6 +82,7 @@ class SessionStateManager:
             "selected_months": [],
             "current_visa_type": None,
             "current_state": None,
+            "date_range": "6m",  # Default to Last 6 Months
         }
 
         for var, default_value in session_vars.items():
@@ -98,6 +107,7 @@ class SessionStateManager:
                 "current_state": selected_state,
                 "selected_points": [],
                 "selected_months": [],
+                "date_range": "6m",
             }
         )
 
@@ -274,6 +284,78 @@ class EOIAnalysisApp:
 
         return True
 
+    @staticmethod
+    def _handle_month_selection(all_months: List[str]):
+        """Handle month selection with improved UI."""
+        st.sidebar.subheader("Month Selection")
+
+        # Date range selector as a dropdown
+        selected_range = st.sidebar.selectbox(
+            "Quick Selection",
+            options=list(VisaConfig.DATE_RANGES.keys()),
+            format_func=lambda x: VisaConfig.DATE_RANGES[x],
+            key="date_range",
+        )
+
+        # Update selected months based on quick selection
+        if selected_range != "custom":
+            months_to_select = all_months
+            if selected_range == "3m":
+                months_to_select = all_months[:3]
+            elif selected_range == "6m":
+                months_to_select = all_months[:6]
+            elif selected_range == "12m":
+                months_to_select = all_months[:12]
+            st.session_state["selected_months"] = months_to_select
+
+        # Show month selection interface only for custom selection
+        if selected_range == "custom":
+            # Create two columns for month selection
+            col1, col2 = st.sidebar.columns(2)
+
+            # Split months into two groups for two-column layout
+            half_length = len(all_months) // 2 + len(all_months) % 2
+
+            # Function to create month checkboxes for a column
+            def create_month_checkboxes(months: List[str], column_number: int):
+                for month in months:
+                    month_selected = st.checkbox(
+                        month,
+                        value=month in st.session_state["selected_months"],
+                        key=f"month_{month}_{column_number}",
+                    )
+                    if (
+                        month_selected
+                        and month not in st.session_state["selected_months"]
+                    ):
+                        st.session_state["selected_months"].append(month)
+                    elif (
+                        not month_selected
+                        and month in st.session_state["selected_months"]
+                    ):
+                        st.session_state["selected_months"].remove(month)
+
+            # Left column
+            with col1:
+                create_month_checkboxes(all_months[:half_length], 1)
+
+            # Right column
+            with col2:
+                create_month_checkboxes(all_months[half_length:], 2)
+
+            # Select All and Clear All buttons for custom selection
+            col1, col2 = st.sidebar.columns(2)
+
+            with col1:
+                if st.button("Select All", use_container_width=True):
+                    st.session_state["selected_months"] = all_months
+                    st.rerun()
+
+            with col2:
+                if st.button("Clear All", use_container_width=True):
+                    st.session_state["selected_months"] = []
+                    st.rerun()
+
     def _handle_filters(self):
         """Handle all filter selections."""
         data = st.session_state["data"]
@@ -298,28 +380,13 @@ class EOIAnalysisApp:
             st.session_state["selected_points"] = []
             st.rerun()
 
-        # Month filter
+        # Month filter with improved UI
         all_months = sorted(
             data["As At Month"].dt.strftime("%Y-%m").unique(), reverse=True
         )
-        self.selected_months = st.sidebar.multiselect(
-            "Select Months (Optional)",
-            all_months,
-            default=st.session_state["selected_months"] or all_months,
-        )
+        self._handle_month_selection(all_months)
 
-        if st.sidebar.button("Reset Months"):
-            st.session_state["selected_months"] = []
-            st.rerun()
-
-        # Update session state if necessary
-        if (
-            self.selected_points != st.session_state["selected_points"]
-            or self.selected_months != st.session_state["selected_months"]
-        ):
-            st.session_state["selected_points"] = self.selected_points
-            st.session_state["selected_months"] = self.selected_months
-            st.rerun()
+        self.selected_months = st.session_state["selected_months"]
 
         # Validate month selection
         if not self.selected_months:
