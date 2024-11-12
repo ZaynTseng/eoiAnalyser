@@ -373,7 +373,7 @@ class EOIAnalysisApp:
             "Points",
             all_points,
             default=st.session_state["selected_points"],
-            placeholder="Select the points",
+            placeholder="All Points",
         )
 
         # Month filter with improved UI
