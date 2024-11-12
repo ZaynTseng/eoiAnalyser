@@ -287,11 +287,10 @@ class EOIAnalysisApp:
     @staticmethod
     def _handle_month_selection(all_months: List[str]):
         """Handle month selection with improved UI."""
-        st.sidebar.subheader("Month Selection")
 
         # Date range selector as a dropdown
         selected_range = st.sidebar.selectbox(
-            "Quick Selection",
+            "Select Months",
             options=list(VisaConfig.DATE_RANGES.keys()),
             format_func=lambda x: VisaConfig.DATE_RANGES[x],
             key="date_range",
@@ -371,14 +370,10 @@ class EOIAnalysisApp:
         # Points filter
         all_points = sorted(data["Points"].unique(), reverse=True)
         self.selected_points = st.sidebar.multiselect(
-            "Select Points (Optional)",
+            "Select Points",
             all_points,
             default=st.session_state["selected_points"],
         )
-
-        if st.sidebar.button("Reset Points"):
-            st.session_state["selected_points"] = []
-            st.rerun()
 
         # Month filter with improved UI
         all_months = sorted(
