@@ -251,7 +251,7 @@ class EOIAnalysisApp:
 
         # Visa type selection
         visa_type = st.sidebar.radio(
-            "Select Visa Type", VisaConfig.VISA_TYPES, horizontal=True
+            "Visa Type", VisaConfig.VISA_TYPES, horizontal=True
         )
         self.visa_type = visa_type.split()[0]
 
@@ -290,7 +290,7 @@ class EOIAnalysisApp:
 
         # Date range selector as a dropdown
         selected_range = st.sidebar.selectbox(
-            "Select Months",
+            "Months",
             options=list(VisaConfig.DATE_RANGES.keys()),
             format_func=lambda x: VisaConfig.DATE_RANGES[x],
             key="date_range",
@@ -361,18 +361,19 @@ class EOIAnalysisApp:
 
         # Occupation and EOI Status
         self.occupation = st.sidebar.selectbox(
-            "Select Occupation", data["Occupation"].unique()
+            "Occupation", data["Occupation"].unique()
         )
         self.eoi_status = st.sidebar.selectbox(
-            "Select EOI Status", data["EOI Status"].unique()
+            "EOI Status", data["EOI Status"].unique()
         )
 
         # Points filter
         all_points = sorted(data["Points"].unique(), reverse=True)
         self.selected_points = st.sidebar.multiselect(
-            "Select Points",
+            "Points",
             all_points,
             default=st.session_state["selected_points"],
+            placeholder="Select the points",
         )
 
         # Month filter with improved UI
