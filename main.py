@@ -243,6 +243,7 @@ class EOIAnalysisApp:
             return
 
         self._handle_filters()
+        self._show_sidebar_info()
         self._create_visualization()
 
     def _setup_sidebar(self):
@@ -411,6 +412,32 @@ class EOIAnalysisApp:
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
+    @staticmethod
+    def _show_sidebar_info():
+        """Display information and copyright in the sidebar."""
+        st.sidebar.markdown("---")  # Add a divider line
+
+        # Add app information
+        st.sidebar.markdown(
+            """
+        #### About This App
+        This EOI Analysis Tool helps you visualise and analyse Expression of Interest (EOI) data for Australian skilled visas.
+
+        #### How to Use
+        1. Select visa type and state (if applicable)
+        2. Choose occupation and EOI status
+        3. Filter by points (optional)
+        4. Select time period using quick selection or custom months
+
+        #### Data Update Frequency
+        Data is updated monthly based on official Department of Home Affairs reports.
+
+        ---
+        **Version**: 1.0.0  
+        © 2024 ZaynTseng. All rights reserved.
+        """
+        )
 
 
 def main():
